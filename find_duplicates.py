@@ -1,6 +1,8 @@
 import hashlib, os
+import matplotlib.pyplot as plt
+import cv2
 
-def main():
+def find_duplicates():
     '''
     This function finds the duplicates in an image folder.
     The folder will contain 'n' number of images, from which duplicate images will be removed.
@@ -15,7 +17,9 @@ def main():
         os.getcwd()
     except:
         print("Image folder '.test/' does not exists !")
-        return (0, 0)
+        return (0, 0, 0)
+    # extract all images 
+    all_images = os.listdir()
     # to store duplicates
     duplicates = []
     # to store duplicate names
@@ -35,10 +39,30 @@ def main():
             else:
                 duplicates.append((index,hash_keys[filehash]))
                 duplicates_name.append(filename)
-    return duplicates_name, duplicates
+    return duplicates_name, duplicates, all_images
 
+def show_duplicates(duplicates):
+    for file_indexes in duplicates[:len(duplicates)]:
+        try:
+            img_1 = cv2.imread(all_images[file_indexes[1]])
+            img_2 = cv2.imread(all_images[file_indexes[0]])
+            
+            img_1 = cv2.cvtColor(img_1, cv2.COLOR_BGR2RGB) 
+            img_2 = cv2.cvtColor(img_2, cv2.COLOR_BGR2RGB)
+            
+            plt.subplot(121),plt.imshow(img_1)
+            plt.title(all_images[file_indexes[1]]), plt.xticks([]), plt.yticks([])
+
+            plt.subplot(122),plt.imshow(img_2)
+            plt.title(all_images[file_indexes[0]] + ': DUPLICATE'), plt.xticks([]), plt.yticks([])
+            plt.show()
+        except OSError as e:
+            continue
 
 ''' execute '''
-duplicates_name, duplicates = main()
+# find duplicates
+duplicates_name, duplicates, all_images = find_duplicates()
 print(f"Duplicates found : {len(duplicates_name)}")
 print(duplicates_name)
+# show duplicates
+show_duplicates(duplicates)
